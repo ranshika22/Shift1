@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Shift Ledger</title>
+<meta name="theme-color" content="#0f766e"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><link rel="manifest" href="manifest.json"><link rel="icon" href="icon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef2f6;--card:#fff;--ink:#14213d;--mute:#5d6b82;--line:#d5dde8;--acc:#0f766e;--accfg:#fff;--warn:#b45309;--bad:#b91c1c}
+@media(prefers-color-scheme:dark){:root:not([data-t=l]){--bg:#0e1626;--card:#16223a;--ink:#e6ecf7;--mute:#93a3bf;--line:#26355a;--acc:#2dd4bf;--accfg:#06221f;--warn:#fbbf24;--bad:#f87171}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Zen Kaku Gothic New",system-ui,sans-serif;padding:env(safe-area-inset-top) 0 calc(100px + env(safe-area-inset-bottom))}
+main{max-width:640px;margin:0 auto;padding:16px}
+h1{font-size:1.4rem;font-weight:900;margin:8px 0 16px}h2{font-size:1rem;margin:20px 0 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px}
+.clock{font-size:3.4rem;font-weight:900;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
+.mute{color:var(--mute);font-size:.85rem}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.sp{justify-content:space-between}
+button,select,input,textarea{font:inherit;color:inherit}
+button{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:10px 14px;cursor:pointer}
+button.p{background:var(--acc);color:var(--accfg);border-color:var(--acc);font-weight:700}
+button.w{border-color:var(--warn);color:var(--warn)}button.d{color:var(--bad)}button:disabled{opacity:.35}
+.big{flex:1 1 45%;padding:18px 10px;font-weight:700;font-size:1.05rem}
+input,select,textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+label{display:block;margin:10px 0 4px;font-size:.85rem;color:var(--mute)}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;border:0;border-radius:0;background:none;padding:14px 2px;font-size:.8rem;color:var(--mute)}
+nav button.on{color:var(--acc);font-weight:900;box-shadow:inset 0 3px var(--acc)}
+dialog{border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);width:min(92vw,460px);padding:18px}
+dialog::backdrop{background:#0008}
+.tag{font-size:.75rem;border:1px solid var(--line);border-radius:99px;padding:1px 8px;color:var(--mute)}
+.tot{font-size:1.5rem;font-weight:900}
+table{width:100%;border-collapse:collapse;font-size:.9rem}td{padding:3px 0}td:last-child{text-align:right;font-variant-numeric:tabular-nums}
+#msg{position:fixed;top:8px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:99px;font-size:.85rem;display:none;z-index:9}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+button{touch-action:manipulation;-webkit-tap-highlight-color:transparent;min-height:44px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}.stat{text-align:center;padding:10px 4px;margin:0}.stat b{display:block;font-size:1.05rem}
+.bar{height:8px;background:var(--bg);border-radius:9px;margin:8px 0 4px;overflow:hidden}.bar i{display:block;height:100%;border-radius:9px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:12px 0}.chips button{white-space:nowrap;border-radius:99px;padding:6px 14px;min-height:36px}
+.ic{display:block;font-size:1.25rem;line-height:1.2}nav button{padding:8px 2px 10px;font-size:.68rem}
+@media(min-width:700px){main{padding-top:28px}}
+
+:root{--hero:#0b3b3a;--shadow:0 1px 2px #14213d14,0 8px 24px #14213d0f}
+@media(prefers-color-scheme:dark){:root:not([data-t=l]){--hero:#0a2f3a;--shadow:0 1px 2px #0006}}
+body{background:var(--bg)}
+h1{font-size:1.7rem;letter-spacing:-.02em;margin:10px 0 16px}
+h2{font-size:.95rem;color:var(--mute);font-weight:700;margin:24px 0 10px}
+.card{border-radius:18px;box-shadow:var(--shadow);padding:16px}
+button{border-radius:12px;transition:transform .08s,background .15s}button:active{transform:scale(.97)}
+.hero{background:var(--hero);color:#fff;border:0;padding:22px 18px}
+.hero .clock{font-size:4rem;text-align:center}.hero .mute{color:#b5d6d2;text-align:center;margin-top:6px}
+.hero label{color:#b5d6d2}.hero select{background:#ffffff1a;border-color:#ffffff30;color:#fff}.hero select option{color:#14213d}
+.hero .row{margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hero .big{border:0;color:#fff;background:#ffffff1f;font-size:1.05rem;padding:20px 8px}
+.hero .big:nth-child(1){background:#22c55e;color:#04230f}.hero .big:nth-child(2){background:#f87171;color:#3b0707}
+.hero .big:nth-child(3),.hero .big:nth-child(4){background:#fbbf24;color:#3a2600}.hero .big:disabled{opacity:.28}
+.grid3 .stat{box-shadow:var(--shadow);border-radius:16px;padding:14px 4px}.stat b{font-size:1.15rem;font-weight:900}
+.tot{font-size:2.2rem;letter-spacing:-.02em}
+nav{left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));max-width:620px;margin:0 auto;border:1px solid var(--line);border-radius:22px;box-shadow:0 10px 30px #14213d33;padding:4px;gap:2px}
+nav button{border-radius:18px;min-height:52px}nav button.on{box-shadow:none;background:color-mix(in srgb,var(--acc) 15%,transparent)}
+input:focus,select:focus{border-color:var(--acc)}
+.card table td{padding:5px 3px}
+</style></head><body>
+<div id="msg"></div><main id="v"></main>
+<nav id="nav"></nav><dialog id="dlg"></dialog>
+<script>
+window.onerror=(m,s,l)=>{document.body.insertAdjacentHTML('afterbegin','<pre style="background:#fee2e2;color:#7f1d1d;padding:10px;margin:0;white-space:pre-wrap;font-size:13px">App error: '+String(m).replace(/</g,'&lt;')+' (line '+l+')</pre>')};
+const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let S=Object.assign({wps:[],es:[],paid:{},rates:{},url:'',key:'',auto:true,active:null,sel:''},JSON.parse(localStorage.getItem('sl')||'{}'));
+let tab='clock',month='',tmr;
+const yen=n=>'¥'+Math.round(n).toLocaleString('ja-JP'),pad=n=>String(n).padStart(2,'0');
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())};
+const now=()=>{const d=new Date();return pad(d.getHours())+':'+pad(d.getMinutes())};
+const tm=t=>{const[a,b]=(t||'0:0').split(':');return +a*60+ +b};
+const hm=m=>Math.floor(m/60)+'h '+pad(Math.round(m%60))+'m';
+const wp=id=>S.wps.find(w=>w.id===id)||{name:'(deleted)',pay:'hourly',rate:0,tr:0,method:'bank'};
+const wpm=(id,mk)=>({...wp(id),...((S.rates||{})[mk]||{})[id]});
+const snap=()=>Object.fromEntries(S.wps.map(w=>[w.id,{pay:w.pay,rate:w.rate,tr:w.tr}]));
+function freeze(){S.rates=S.rates||{};const c=today().slice(0,7);months().forEach(k=>{if(k<c&&!S.rates[k])S.rates[k]=snap()})}
+const mins=e=>{if(!e.e)return 0;let d=tm(e.e)-tm(e.s);if(d<0)d+=1440;return Math.max(0,d-(+e.b||0))};
+function msg(t){const m=$('#msg');m.textContent=t;m.style.display='block';clearTimeout(m._t);m._t=setTimeout(()=>m.style.display='none',2500)}
+function save(){localStorage.setItem('sl',JSON.stringify(S));if(S.auto&&S.url&&S.key){clearTimeout(tmr);tmr=setTimeout(()=>push(true),1500)}render()}
+async function push(quiet){if(!S.url||!S.key)return msg('Add the Sheets URL and passcode in Sync first');
+ try{const r=await fetch(S.url,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'save',key:S.key,wps:S.wps,es:S.es,paid:S.paid,rates:S.rates})});const j=await r.json();if(j.error==='unauthorized')return msg('Wrong passcode');if(!j.ok)throw 0;msg(quiet?'Auto-saved to Sheets':'Uploaded to Sheets')}catch(e){msg('Upload failed. Check the URL and access.')}}
+async function pull(auto){if(!S.url||!S.key)return auto||msg('Add the Sheets URL and passcode first');
+ if(!auto&&(S.es.length||S.wps.length)&&!confirm('Replace data on this device with data from Google Sheets?'))return;
+ try{const j=await(await fetch(S.url,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'load',key:S.key})})).json();
+ if(j.error)return msg(j.error==='unauthorized'?'Wrong passcode':'Sheets error');
+ S.wps=j.wps||[];S.es=j.es||[];S.paid=j.paid||{};S.rates=j.rates||{};localStorage.setItem('sl',JSON.stringify(S));render();msg('Downloaded from Sheets')}catch(e){msg('Download failed. Check the URL and access.')}}
+const tabs=[['clock','Clock','⏱'],['log','Log','📋'],['stats','Stats','📊'],['sum','Pay','💴'],['wps','Places','🏢'],['sync','Sync','☁']];
+function render(){$('#nav').innerHTML=tabs.map(([k,n,i])=>`<button class="${k===tab?'on':''}" onclick="tab='${k}';render()"><span class="ic">${i}</span>${n}</button>`).join('');
+ $('#v').innerHTML={clock:vClock,log:vLog,stats:vStats,sum:vSum,wps:vWps,sync:vSync}[tab]()}
+function vClock(){if(!S.wps.length)return`<h1>Clock</h1><div class="card">Add a workplace first.<br><br><button class="p" onclick="tab='wps';editWp()">Add workplace</button></div>`;
+ const a=S.es.find(e=>e.id===S.active),onb=a&&a.bs;
+ if(!S.wps.some(w=>w.id===S.sel))S.sel=S.wps[0].id;
+ const te=S.es.filter(e=>e.d===today());
+ return`<h1>Clock</h1>${quick()}<div class="card hero"><div class="clock" id="ck">${now()}</div>
+ <div class="mute">${a?(onb?'On break since '+a.bs:'Working since '+a.s)+' · '+esc(wp(a.wp).name):'Not clocked in'}</div>
+ <label>Workplace</label><select ${a?'disabled':''} onchange="S.sel=this.value">${S.wps.map(w=>`<option value="${w.id}" ${w.id===S.sel?'selected':''}>${esc(w.name)}</option>`).join('')}</select>
+ <div class="row" style="margin-top:12px"><button class="big p" ${a?'disabled':''} onclick="cin()">Start work</button><button class="big p" ${a&&!onb?'':'disabled'} onclick="cout()">End work</button>
+ <button class="big w" ${a&&!onb?'':'disabled'} onclick="bst()">Start break</button><button class="big w" ${onb?'':'disabled'} onclick="ben()">End break</button></div></div>
+ <h2>Today</h2>${te.length?te.map(eRow).join(''):'<div class="mute">No entries yet today.</div>'}`}
+setInterval(()=>{const c=$('#ck');if(c)c.textContent=now()},10000);
+let cm=today().slice(0,7);month=cm;
+setInterval(()=>{const n=today().slice(0,7);if(n!==cm){freeze();if(month===cm)month=n;cm=n;render()}},60000);
+function cin(){const id='e'+Date.now();S.es.push({id,wp:S.sel,d:today(),s:now(),e:'',b:0,bs:'',n:''});S.active=id;save()}
+function bst(){S.es.find(e=>e.id===S.active).bs=now();save()}
+function ben(){const e=S.es.find(x=>x.id===S.active);let d=tm(now())-tm(e.bs);if(d<0)d+=1440;e.b=(+e.b||0)+d;e.bs='';save()}
+function cout(){const e=S.es.find(x=>x.id===S.active);e.e=now();S.active=null;save()}
+function eRow(e){return`<div class="card row sp" style="border-left:6px solid ${col(e.wp)}"><div><b>${esc(wp(e.wp).name)}</b> <span class="mute">${e.d}</span><br>${e.s} – ${e.e||'now'} · break ${e.b||0}m${e.n?'<br><span class="mute">'+esc(e.n)+'</span>':''}</div>
+ <div class="row"><b>${e.e?hm(mins(e)):'…'}</b><button onclick="editE('${e.id}')">Edit</button></div></div>`}
+function vLog(){const es=S.es.filter(e=>e.d.startsWith(month)).sort((a,b)=>(b.d+b.s).localeCompare(a.d+a.s));
+ return`<h1>Log</h1>${nav()}<button class="p" onclick="editE()">Add entry</button><h2>Entries in ${month}</h2>${es.map(eRow).join('')||'<div class="mute">Nothing logged in this month.</div>'}`}
+function editE(id){if(!S.wps.length){msg('Add a workplace first');return}
+ const e=S.es.find(x=>x.id===id)||{wp:S.sel||S.wps[0].id,d:today(),s:'09:00',e:'18:00',b:60,n:''};
+ $('#dlg').innerHTML=`<h2 style="margin-top:0">${id?'Edit':'Add'} entry</h2><label>Workplace</label><select id="f1">${S.wps.map(w=>`<option value="${w.id}" ${w.id===e.wp?'selected':''}>${esc(w.name)}</option>`).join('')}</select>
+ <label>Date</label><input id="f2" type="date" value="${e.d}"><div class="row"><div style="flex:1"><label>Start</label><input id="f3" type="time" value="${e.s}"></div><div style="flex:1"><label>End</label><input id="f4" type="time" value="${e.e}"></div></div>
+ <label>Break (minutes)</label><input id="f5" type="number" min="0" value="${e.b||0}"><label>Note</label><input id="f6" value="${esc(e.n)}">
+ <div class="row sp" style="margin-top:16px"><div>${id?`<button class="d" onclick="delE('${id}')">Delete</button>`:''}</div><div class="row"><button onclick="dlg.close()">Cancel</button><button class="p" onclick="saveE('${id||''}')">Save entry</button></div></div>`;dlg.showModal()}
+function saveE(id){const o={wp:f1.value,d:f2.value,s:f3.value,e:f4.value,b:+f5.value||0,bs:'',n:f6.value};if(!o.d||!o.s)return msg('Date and start time are required');
+ const e=S.es.find(x=>x.id===id);if(e){Object.assign(e,o);if(S.active===id&&o.e)S.active=null}else S.es.push({id:'e'+Date.now(),...o});dlg.close();save()}
+function delE(id){if(!confirm('Delete this entry?'))return;S.es=S.es.filter(e=>e.id!==id);if(S.active===id)S.active=null;dlg.close();save()}
+const COL=['#0f766e','#c2410c','#4f46e5','#be185d','#a16207','#0369a1','#7c3aed','#15803d'];
+const col=id=>COL[Math.max(0,S.wps.findIndex(w=>w.id===id))%COL.length];
+const sumR=(a,b)=>S.es.filter(e=>e.e&&e.d>=a&&e.d<=b).reduce((x,e)=>x+mins(e),0);
+function quick(){const t=new Date(),m=new Date(t);m.setDate(t.getDate()-(t.getDay()+6)%7);const td=today(),w0=m.getFullYear()+'-'+pad(m.getMonth()+1)+'-'+pad(m.getDate());
+ return`<div class="grid3">${[['Today',sumR(td,td)],['This week',sumR(w0,td)],['This month',sumR(td.slice(0,7)+'-01',td)]].map(([n,v])=>`<div class="card stat"><b>${hm(v)}</b><span class="mute">${n}</span></div>`).join('')}</div>`}
+let sf='all';
+function vStats(){const[y,mo]=month.split('-').map(Number),n=new Date(y,mo,0).getDate(),f=S.wps.some(w=>w.id===sf)?sf:'all';
+ const l=S.es.filter(e=>e.e&&e.d.startsWith(month)),days=[];
+ for(let i=1;i<=n;i++){const k=month+'-'+pad(i);days.push(l.filter(e=>e.d===k).reduce((o,e)=>(o[e.wp]=(o[e.wp]||0)+mins(e),o),{}))}
+ const ids=f==='all'?S.wps.map(w=>w.id):[f],tot=d=>ids.reduce((a,id)=>a+(d[id]||0),0),top=Math.ceil(Math.max(60,...days.map(tot))/60),bw=300/n;
+ let bars='',grid='';
+ for(let g=0;g<=top;g+=Math.ceil(top/4)){const yy=140-g*120/top;grid+=`<line x1="30" x2="335" y1="${yy}" y2="${yy}" stroke="var(--line)"/><text x="26" y="${yy+4}" text-anchor="end" font-size="10" fill="var(--mute)">${g}h</text>`}
+ days.forEach((d,i)=>{let y0=140;ids.forEach(id=>{const h=(d[id]||0)/60*120/top;if(h>0){y0-=h;bars+=`<rect x="${32+i*bw+1}" y="${y0}" width="${Math.max(2,bw-2)}" height="${h}" rx="2" fill="${col(id)}"/>`}});if(i%5===0||i===n-1)bars+=`<text x="${32+i*bw+bw/2}" y="156" text-anchor="middle" font-size="10" fill="var(--mute)">${i+1}</text>`});
+ const all=l.filter(e=>f==='all'||e.wp===f),m=all.reduce((a,e)=>a+mins(e),0),dw=new Set(all.map(e=>e.d)).size;
+ const per=S.wps.map(w=>{const x=l.filter(e=>e.wp===w.id);return{w,m:x.reduce((a,e)=>a+mins(e),0),d:new Set(x.map(e=>e.d)).size}}).filter(p=>p.m>0),pm=Math.max(1,...per.map(p=>p.m));
+ return`<h1>Stats</h1>${nav()}
+ <div class="chips">${[['all','All'],...S.wps.map(w=>[w.id,w.name])].map(([id,nm])=>`<button class="${id===f?'p':''}" onclick="sf='${id}';render()">${esc(nm)}</button>`).join('')}</div>
+ <div class="card"><div class="mute">Total hours worked</div><div class="tot">${hm(m)}</div><div class="mute">${dw} days${dw?' · avg '+hm(m/dw)+' per day':''}</div>
+ <svg viewBox="0 0 340 162" style="width:100%;margin-top:10px" role="img" aria-label="Hours worked per day">${grid}${bars}</svg></div>
+ <h2>Hours by workplace</h2>${per.map(p=>`<div class="card"><div class="row sp"><span><i class="dot" style="background:${col(p.w.id)}"></i><b>${esc(p.w.name)}</b></span><b>${hm(p.m)}</b></div><div class="bar"><i style="width:${p.m/pm*100}%;background:${col(p.w.id)}"></i></div><div class="mute">${p.d} days · avg ${hm(p.m/p.d)} per day</div></div>`).join('')||'<div class="mute">No finished shifts this month.</div>'}`}
+function mv(n){const[y,m]=month.split('-').map(Number),d=new Date(y,m-1+n,1);month=d.getFullYear()+'-'+pad(d.getMonth()+1);render()}
+const nav=()=>`<div class="row" style="margin-bottom:10px;flex-wrap:nowrap"><button onclick="mv(-1)" aria-label="Previous month">‹</button><input type="month" value="${month}" onchange="month=this.value;render()" style="flex:1"><button onclick="mv(1)" aria-label="Next month">›</button>${month!==today().slice(0,7)?`<button onclick="month=today().slice(0,7);render()">Now</button>`:''}</div>`;
+function sumCard(d){const L='text-align:left',R=(a,b)=>`<div class="row sp" style="color:#b5d6d2;font-size:.9rem"><span>${a}</span><span>${b}</span></div>`;
+ return`<div class="card hero"><div class="mute" style="${L}">Final salary · ${month}</div><div class="clock" style="${L};font-size:2.6rem">${yen(d.tot)}</div><div class="mute" style="${L}">${hm(d.m)} · ${d.days} days</div>
+ <div style="margin-top:12px">${R('Hourly wages',yen(d.hp))}${d.ms?R('Monthly salary',yen(d.ms)):''}${R('Transport',yen(d.tr))}${R('<b>Price per hour (average)</b>',`<b>${d.m?yen(d.tot/(d.m/60)):'-'}</b>`)}</div></div>`}
+function daily(mk){const l=S.es.filter(e=>e.e&&e.d.startsWith(mk));if(!l.length)return'';const ds=[...new Set(l.map(e=>e.d))].sort();
+ const rows=ds.map(d=>{let m=0,p=0,t=0;S.wps.forEach(o=>{const w=wpm(o.id,mk),x=l.filter(e=>e.d===d&&e.wp===w.id);if(!x.length)return;const mm=x.reduce((a,e)=>a+mins(e),0);m+=mm;if(w.pay!=='monthly')p+=+w.rate*mm/60;t+=+w.tr||0});return{d,m,p,t}});let c=0;rows.forEach(r=>{c+=r.p+r.t;r.c=c});
+ return`<h2>Daily breakdown</h2><div class="card" style="overflow-x:auto"><table><tr class="mute"><td>Day</td><td>Hours</td><td>Pay</td><td>Transport</td><td>Total</td><td>Running</td></tr>${rows.map(r=>`<tr><td>${r.d.slice(5)}</td><td>${hm(r.m)}</td><td>${yen(r.p)}</td><td>${yen(r.t)}</td><td><b>${yen(r.p+r.t)}</b></td><td>${yen(r.c)}</td></tr>`).join('')}</table><div class="mute" style="margin-top:8px">Monthly-salary workplaces show hours and transport per day; the salary is included once in the month total.</div></div>`}
+function vSum(){const es=S.es.filter(e=>e.d.startsWith(month)&&e.e);let grand=0;
+ const cards=S.wps.map(o=>{const w=wpm(o.id,month),l=es.filter(e=>e.wp===w.id);if(!l.length)return'';const m=l.reduce((a,e)=>a+mins(e),0),days=new Set(l.map(e=>e.d)).size;
+ const base=w.pay==='monthly'?+w.rate:+w.rate*m/60,tr=(+w.tr||0)*days,tot=base+tr,k=w.id+'|'+month,pd=S.paid[k];grand+=tot;
+ return`<div class="card"><div class="row sp"><b>${esc(w.name)}</b><span class="tag">${w.method==='cash'?'Cash in hand':'Bank transfer'}</span></div>
+ <div class="tot">${yen(tot)}</div><table><tr><td>Hours worked</td><td>${hm(m)}</td></tr><tr><td>Days worked</td><td>${days}</td></tr>
+ <tr><td>${w.pay==='monthly'?'Monthly salary':'Pay at '+yen(w.rate)+'/h'}</td><td>${yen(base)}</td></tr><tr><td>Transport (${yen(w.tr||0)} × ${days})</td><td>${yen(tr)}</td></tr><tr><td><b>Effective per hour</b></td><td><b>${m?yen(tot/(m/60)):"-"}</b></td></tr></table>
+ <label class="row" style="margin-top:8px"><input type="checkbox" style="width:auto" ${pd?'checked':''} onchange="S.paid['${k}']=this.checked;save()"> Received</label></div>`}).join('');
+ return`<h1>Pay</h1>${nav()}<button onclick="csv()">Export this month CSV</button>
+ ${sumCard(md(month))}<h2>By workplace</h2>${cards||'<div class="mute">No finished shifts this month.</div>'}${daily(month)}${allMonths()}`}
+function md(mk){let m=0,tot=0,hp=0,ms=0,tr=0;const days=new Set(),per=[];S.wps.forEach(o=>{const w=wpm(o.id,mk),l=S.es.filter(e=>e.e&&e.d.startsWith(mk)&&e.wp===w.id);if(!l.length)return;const mm=l.reduce((a,e)=>a+mins(e),0),dd=new Set(l.map(e=>e.d)).size,b=w.pay==='monthly'?+w.rate:+w.rate*mm/60,t=b+(+w.tr||0)*dd;per.push({w,mm,dd,t});m+=mm;tot+=t;tr+=(+w.tr||0)*dd;if(w.pay==='monthly')ms+=b;else hp+=b;l.forEach(e=>days.add(e.d))});return{m,tot,days:days.size,per,hp,ms,tr}}
+const months=()=>[...new Set(S.es.filter(e=>e.e).map(e=>e.d.slice(0,7)))].sort().reverse();
+function allMonths(){const D=months().map(k=>[k,md(k)]);if(!D.length)return'';const mx=Math.max(1,...D.map(([,d])=>d.tot)),T=D.reduce((a,[,d])=>[a[0]+d.m,a[1]+d.tot],[0,0]);
+ return`<h2>Every month</h2><div class="card row sp"><span class="mute">All months combined<br><b style="color:var(--ink)">${hm(T[0])}</b></span><span class="tot">${yen(T[1])}</span></div>`+D.map(([k,d])=>`<div class="card" onclick="month='${k}';render();scrollTo(0,0)"><div class="row sp"><b>${k}</b><b>${yen(d.tot)}</b></div><div class="bar"><i style="width:${d.tot/mx*100}%;background:var(--acc)"></i></div><div class="mute">${hm(d.m)} · ${d.days} days</div>${d.per.map(p=>`<div class="row sp mute"><span><i class="dot" style="background:${col(p.w.id)}"></i>${esc(p.w.name)} · ${hm(p.mm)}</span><span>${yen(p.t)}</span></div>`).join('')}</div>`).join('')+`<button onclick="csvAll()">Export all months CSV</button>`}
+function csvAll(){const r=[['month','workplace','hours','days','earnings_yen']];months().reverse().forEach(k=>{const d=md(k);d.per.forEach(p=>r.push([k,p.w.name,(p.mm/60).toFixed(2),p.dd,Math.round(p.t)]));r.push([k,'TOTAL',(d.m/60).toFixed(2),d.days,Math.round(d.tot)])});
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+r.map(x=>x.map(c=>'"'+String(c??'').replace(/"/g,'""')+'"').join(',')).join('\n')],{type:'text/csv'}));a.download='monthly-earnings.csv';a.click()}
+function csv(){const r=[['date','workplace','start','end','break_min','work_min','note']];S.es.filter(e=>e.d.startsWith(month)).sort((a,b)=>a.d.localeCompare(b.d)).forEach(e=>r.push([e.d,wp(e.wp).name,e.s,e.e,e.b,mins(e),e.n]));
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+r.map(x=>x.map(c=>'"'+String(c??'').replace(/"/g,'""')+'"').join(',')).join('\n')],{type:'text/csv'}));a.download='shifts-'+month+'.csv';a.click()}
+function vWps(){return`<h1>Workplaces</h1><button class="p" onclick="editWp()">Add workplace</button><h2>Your workplaces</h2>${S.wps.map(w=>`<div class="card row sp"><div><b>${esc(w.name)}</b><br><span class="mute">${w.pay==='monthly'?yen(w.rate)+' / month':yen(w.rate)+' / hour'} · transport ${yen(w.tr||0)}/day · ${w.method==='cash'?'cash in hand':'bank'}</span></div><button onclick="editWp('${w.id}')">Edit</button></div>`).join('')||'<div class="mute">No workplaces yet.</div>'}`}
+function editWp(id){const w=S.wps.find(x=>x.id===id)||{name:'',pay:'hourly',rate:'',tr:0,method:'bank'};
+ $('#dlg').innerHTML=`<h2 style="margin-top:0">${id?'Edit':'Add'} workplace</h2><label>Name</label><input id="w1" value="${esc(w.name)}">
+ <label>Pay type</label><select id="w2"><option value="hourly" ${w.pay==='hourly'?'selected':''}>Hourly</option><option value="monthly" ${w.pay==='monthly'?'selected':''}>Monthly salary</option></select>
+ <label>Hourly rate or monthly salary (¥)</label><input id="w3" type="number" min="0" value="${w.rate}"><label>Transport paid by company (¥ per working day)</label><input id="w4" type="number" min="0" value="${w.tr||0}">
+ <label>Paid by</label><select id="w5"><option value="bank" ${w.method==='bank'?'selected':''}>Bank transfer</option><option value="cash" ${w.method==='cash'?'selected':''}>Cash in hand</option></select>
+ <div class="row sp" style="margin-top:16px"><div>${id?`<button class="d" onclick="delWp('${id}')">Delete</button>`:''}</div><div class="row"><button onclick="dlg.close()">Cancel</button><button class="p" onclick="saveWp('${id||''}')">Save workplace</button></div></div>`;dlg.showModal()}
+function saveWp(id){const o={name:w1.value.trim(),pay:w2.value,rate:+w3.value||0,tr:+w4.value||0,method:w5.value};if(!o.name)return msg('Enter a name');
+ freeze();const w=S.wps.find(x=>x.id===id);if(w)Object.assign(w,o);else S.wps.push({id:'w'+Date.now(),...o});dlg.close();save()}
+function delWp(id){if(!confirm('Delete this workplace? Its entries stay in the log.'))return;S.wps=S.wps.filter(w=>w.id!==id);dlg.close();save()}
+async function conn(){S.url=su.value.trim();S.key=sk.value;localStorage.setItem('sl',JSON.stringify(S));if(!S.url||!S.key){render();return msg('Enter both the URL and passcode')}
+ msg('Saved. Connecting…');if(!S.es.length&&!S.wps.length)await pull(true);else await push();render()}
+function vSync(){return`<h1>Sync</h1><div class="card"><label>Google Apps Script web app URL</label><input id="su" value="${esc(S.url)}" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off"><label>Passcode (set in Code.gs)</label><input id="sk" type="password" autocomplete="off" value="${esc(S.key)}">
+ <button class="p" style="width:100%;margin-top:12px" onclick="conn()">Save &amp; connect</button><div class="mute" style="margin-top:6px">${S.url&&S.key?'✓ URL and passcode saved on this device':'Not connected yet'}</div>
+ <label class="row"><input type="checkbox" style="width:auto" ${S.auto?'checked':''} onchange="S.auto=this.checked;save()"> Upload automatically after every change</label>
+ <div class="row" style="margin-top:12px"><button class="p" onclick="push()">Upload now</button><button onclick="pull()">Download from Sheets</button></div></div>
+ <div class="card mute">The URL and passcode are saved on this device only (never in the app code) and stay after app updates. On a new device, enter both and your data downloads automatically.</div><div class="card mute">Setup: create a Google Sheet → Extensions → Apps Script → paste Code.gs → Deploy as web app (run as you, access: anyone) → paste the URL above.</div>
+ <div class="card"><b>Backup file</b><div class="row" style="margin-top:8px"><button onclick="exp()">Save JSON</button><button onclick="$('#imp').click()">Load JSON</button><input id="imp" type="file" accept=".json" hidden onchange="imp(this.files[0])"></div></div><div class="mute" style="text-align:center">Shift Ledger v2.1 · monthly salary</div>`}
+function exp(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({wps:S.wps,es:S.es,paid:S.paid,rates:S.rates})],{type:'application/json'}));a.download='shift-ledger.json';a.click()}
+function imp(f){if(!f)return;f.text().then(t=>{try{const j=JSON.parse(t);S.wps=j.wps||[];S.es=j.es||[];S.paid=j.paid||{};S.rates=j.rates||{};save();msg('Loaded')}catch(e){msg('Not a valid backup file')}})}
+freeze();render();
+if(S.url&&S.key&&!S.es.length&&!S.wps.length)pull(true);
+navigator.storage&&navigator.storage.persist&&navigator.storage.persist();
+if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script></body></html>
